@@ -1,0 +1,67 @@
+# Functions shipped binaries may import. One "dll!function" per line, dll in lower case.
+#
+# Only add an entry after confirming the function exists on Windows XP RTM (SP0),
+# i.e. Microsoft documents its minimum supported client as Windows 2000, XP or older
+# (not "XP SP1/SP2/SP3", Vista or later). Note the reason next to anything unusual.
+# Final confirmation is running the binary on an XP SP0 machine.
+
+# --- kernel32.dll: all available since Windows NT 3.x / 2000 ---
+kernel32.dll!DeleteCriticalSection
+kernel32.dll!EnterCriticalSection
+kernel32.dll!FreeLibrary
+kernel32.dll!GetCPInfo
+kernel32.dll!GetLastError
+kernel32.dll!GetModuleHandleA
+kernel32.dll!GetProcAddress
+kernel32.dll!InitializeCriticalSection
+kernel32.dll!LeaveCriticalSection
+kernel32.dll!LoadLibraryA
+kernel32.dll!MultiByteToWideChar
+kernel32.dll!SetUnhandledExceptionFilter
+kernel32.dll!Sleep
+kernel32.dll!VirtualProtect
+kernel32.dll!VirtualQuery
+kernel32.dll!WideCharToMultiByte
+
+# --- msvcrt.dll: exported by the msvcrt.dll shipped with XP RTM ---
+# Mostly pulled in by the mingw-w64 CRT start-up code, not by our sources.
+msvcrt.dll!__fpecode
+msvcrt.dll!__lc_codepage
+msvcrt.dll!__p___mb_cur_max
+msvcrt.dll!__p___winitenv
+msvcrt.dll!__p__commode
+msvcrt.dll!__p__fmode
+msvcrt.dll!__p__iob
+msvcrt.dll!__pxcptinfoptrs
+msvcrt.dll!__set_app_type
+msvcrt.dll!__setusermatherr
+msvcrt.dll!__wgetmainargs
+msvcrt.dll!_amsg_exit
+msvcrt.dll!_cexit
+msvcrt.dll!_control87
+msvcrt.dll!_errno
+msvcrt.dll!_exit
+msvcrt.dll!_fpreset
+msvcrt.dll!_initterm
+msvcrt.dll!_lock
+msvcrt.dll!_unlock
+msvcrt.dll!_XcptFilter
+msvcrt.dll!abort
+msvcrt.dll!atexit
+msvcrt.dll!exit
+msvcrt.dll!fflush
+msvcrt.dll!fprintf
+msvcrt.dll!fputwc
+msvcrt.dll!free
+msvcrt.dll!fwprintf
+msvcrt.dll!localeconv
+msvcrt.dll!malloc
+msvcrt.dll!memcmp
+msvcrt.dll!memcpy
+msvcrt.dll!setvbuf
+msvcrt.dll!signal
+msvcrt.dll!strerror
+msvcrt.dll!strlen
+msvcrt.dll!vfprintf
+msvcrt.dll!wcscmp
+msvcrt.dll!wcslen
