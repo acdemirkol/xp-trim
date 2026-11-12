@@ -1,0 +1,46 @@
+# --- Derleme çıktıları ---
+/build/
+/out/
+/dist/
+*.o
+*.obj
+*.a
+*.lib
+*.exe
+*.dll
+*.res
+*.map
+*.pdb
+*.ilk
+*.exp
+*.d
+
+# --- Paketleme ---
+*.zip
+*.7z
+
+# --- Test artıkları ---
+# Disk imajları depoya asla girmez (büyük ve potansiyel olarak gerçek veri içerir)
+*.img
+*.vhd
+*.vhdx
+*.vmdk
+*.iso
+/tests/tmp/
+*.log
+
+# --- Editör / IDE ---
+.vscode/
+.idea/
+*.swp
+*~
+*.suo
+*.user
+
+# --- İşletim sistemi ---
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# --- Claude Code yerel ayarları ---
+.claude/settings.local.json
