@@ -110,6 +110,9 @@ tools/check-imports.sh   # objdump -p → tools/allowed-imports.txt ile karşıl
   applet üzerinden açılır. `uninstall` hepsini geri alır.
 
 ## İş sırası (her biri ayrı branch + PR)
+
+Durum: 0 ✅ (#1) · 1 🔄 (`feat/core`) · 2–9 ⏳
+
 0. **Altyapı** — `chore/bootstrap`
    - MSYS2'yi winget ile kur (onay alınarak): `mingw-w64-i686-gcc`, `make`, `binutils`.
      MINGW32 paketleri yoksa yedek: llvm-mingw'nin msvcrt/i686 hedefli sürümü.
@@ -120,6 +123,9 @@ tools/check-imports.sh   # objdump -p → tools/allowed-imports.txt ile karşıl
    - GitHub Actions: windows-latest + msys2/setup-msys2 (MINGW32) → build, test, check.
 1. **Saf mantık** — `feat/core`: geometry, ranges, dsm, identify + testler (sınır taşması,
    4K sektör, 65535 bölme, birleştirme, word 105 sınırı, bozuk IDENTIFY).
+   - Komut başına DSM bloğu, sürücü daha fazlasını bildirse de en fazla 8'dir
+     (`XT_DSM_BLOCKS_CAP`, 512 girdi); word 105 = 0 ise 1 blok kullanılır.
+   - Tek bir dosyanın extent'lerinden gelen aralıklar çakışamaz; çakışma hata sayılır.
 2. **Birim/disk sorguları** — `feat/volume-info`: salt-okunur IOCTL'ler, reddetme kuralları,
    `xptrim info X:`.
 3. **IDENTIFY** — `feat/ata-identify`: iki pass-through yolu, `info`'ya TRIM desteği/model.
