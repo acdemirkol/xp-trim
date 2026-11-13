@@ -35,4 +35,22 @@ extern int test_checks;
         }                                                                    \
     } while (0)
 
+#define CHECK_RESULT(expr, expected)                                         \
+    do {                                                                     \
+        int a_ = (int)(expr);                                                \
+        int e_ = (int)(expected);                                            \
+        test_checks++;                                                       \
+        if (a_ != e_) {                                                      \
+            test_failures++;                                                 \
+            fprintf(stderr, "%s:%d: %s returned %d, expected %d (%s)\n",     \
+                    __FILE__, __LINE__, #expr, a_, e_, #expected);           \
+        }                                                                    \
+    } while (0)
+
+/* Test suites, one per source file in tests/. */
+void suite_geometry(void);
+void suite_ranges(void);
+void suite_dsm(void);
+void suite_identify(void);
+
 #endif /* XPTRIM_TEST_H */

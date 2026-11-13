@@ -28,8 +28,18 @@ LDFLAGS  := -static -static-libgcc \
             -Wl,--major-subsystem-version,5,--minor-subsystem-version,1 \
             -Wl,--major-os-version,5,--minor-os-version,1
 
+CORE_SRC   := src/core/result.c \
+              src/core/geometry.c \
+              src/core/ranges.c \
+              src/core/dsm.c \
+              src/core/identify.c
 XPTRIM_SRC := src/cli/main.c
-TEST_SRC   := tests/test_main.c
+TEST_SRC   := tests/test_main.c \
+              tests/test_geometry.c \
+              tests/test_ranges.c \
+              tests/test_dsm.c \
+              tests/test_identify.c \
+              $(CORE_SRC)
 
 XPTRIM_OBJ := $(XPTRIM_SRC:%.c=$(OBJ)/%.o)
 TEST_OBJ   := $(TEST_SRC:%.c=$(OBJ)/%.o)
