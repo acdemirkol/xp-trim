@@ -1,7 +1,17 @@
 # CLAUDE.md
 
-Windows XP üzerinde SSD'lere TRIM gönderen bir komut satırı aracı (`xptrim`) ve onu
-periyodik çalıştıran bir Windows servisi. GitHub'da açık kaynak olarak yayınlanacak.
+Windows XP üzerinde SSD'lere TRIM gönderen bir araç paketi. MIT lisansıyla GitHub'da
+açık kaynak olarak yayınlanacak. Dört bileşen:
+
+| Bileşen | Dosya | Görev |
+|---|---|---|
+| Komut satırı aracı | `xptrim.exe` | info / trim (dry-run varsayılan) / install / uninstall |
+| Servis | `xptrimsvc.exe` | Periyodik çalıştırma, `status.ini` yazma |
+| Denetim Masası appleti | `xptrim.cpl` | Durum, ayarlar, şimdi çalıştır, tepsi simgesini aç/kapa |
+| Tepsi simgesi (isteğe bağlı) | `xptrimtray.exe` | Saatin yanında durum; çift tık appleti açar |
+
+Onaylı tasarım ve iş sırası [docs/plan.md](docs/plan.md) dosyasındadır; bir adım
+tamamlandığında veya tasarım değiştiğinde aynı PR'da güncellenir.
 
 Bu dosyadaki kurallar her değişiklikte geçerlidir. "Güvenlik kuralları" bölümü
 hiçbir gerekçeyle esnetilemez; bir kural bir işi engelliyorsa kural çiğnenmez,
@@ -19,17 +29,41 @@ durum kullanıcıya sorulur.
     `*_s` güvenli CRT fonksiyonları.
 - Dil: C (C99), yalnızca Win32 API. C++ runtime, .NET, UCRT yok.
   - Tüm Win32 çağrıları Unicode (`W`) sürümleriyle yapılır; giriş noktası `wmain` (`-municode`).
-  - XP'nin `msvcrt.dll`'i `%lld`, `%zu` gibi C99 biçimlerini desteklemez. Ya
-    `__USE_MINGW_ANSI_STDIO=1` kullanılır ya da `%I64d` / `%lu` ile yazılır; karışık kullanım yok.
+  - XP'nin `msvcrt.dll`'i `%lld`, `%zu` gibi C99 biçimlerini desteklemez. Bu yüzden
+    Makefile `__USE_MINGW_ANSI_STDIO=1` tanımlar (mingw'nin kendi printf'i statik bağlanır);
+    `%I64d` gibi Microsoft'a özgü biçimler kullanılmaz.
 - Derleme: MinGW-w64 i686 (msvcrt), `-D_WIN32_WINNT=0x0501 -DWINVER=0x0501`, statik link,
   PE subsystem version 5.01.
   - Bağlayıcı bayrakları: `-static -static-libgcc`,
     `-Wl,--major-subsystem-version,5,--minor-subsystem-version,1,--major-os-version,5,--minor-os-version,1`.
   - winpthreads ve C++ bağımlılığı çeken hiçbir şey kullanılmaz.
   - Uyarılar hata sayılır: `-std=c99 -Wall -Wextra -Werror`.
-  - Yeni MinGW-w64 CRT sürümleri XP'de olmayan fonksiyonları içeri çekebilir. Bu yüzden her
-    derlemeden sonra çıktının import tablosu (`objdump -p`) XP SP0'da bulunan export'ların
-    beyaz listesiyle karşılaştırılır; listede olmayan bir import derlemeyi başarısız sayar.
+  - Yeni MinGW-w64 CRT sürümleri XP'de olmayan fonksiyonları içeri çekebilir. Bu yüzden
+    `make check`, dağıtılan her exe/cpl'in import tablosunu `tools/allowed-imports.txt`
+    ile karşılaştırır; listede olmayan bir import kontrolü başarısız sayar. Listeye yalnızca
+    XP RTM'de (SP0) var olduğu doğrulanan fonksiyon eklenir, gerekçesi yanına yazılır.
+
+## Komutlar
+
+Geliştirme makinesi Windows 11 **ARM64**; i686 exe'ler x86 emülasyonuyla çalışır, yani
+testler ana makinede koşar. Toolchain: MSYS2 (`C:\msys64`) MINGW32 ortamı, GCC 16 i686.
+
+```
+tools\msys-run.cmd make         # build/xptrim.exe
+tools\msys-run.cmd make test    # birim testleri
+tools\msys-run.cmd make check   # XP import ve PE başlık kontrolü
+```
+
+PowerShell 5.1 native exe'lere iç tırnakları bozuk iletir; karmaşık bash komutları bir
+betik dosyasına yazılıp çalıştırılır. CI (`.github/workflows/ci.yml`) aynı üç adımı koşar.
+
+## Dil
+
+- Kod, tanımlayıcılar, yorumlar, commit mesajları, PR'lar ve CHANGELOG İngilizce.
+- README iki dilli: `README.md` (İngilizce) ve `README.tr.md` (Türkçe); biri değişince
+  diğeri aynı PR'da güncellenir.
+- Arayüz metinleri (applet, tepsi) string table'da EN + TR.
+- Bu dosya (CLAUDE.md) Türkçe.
 
 ## Güvenlik kuralları (ihlal edilemez)
 
@@ -67,18 +101,28 @@ durum kullanıcıya sorulur.
     yetkisiyle hiçbir şey çalıştırmaz. Gerçek donanımda doğrulama yalnızca kullanıcı
     tarafından, gözden çıkarılabilir bir diskte ve elle yapılır.
 
-## Mimari (planlanan)
+## Mimari
 
-- `src/core/`   — saf mantık: LCN→LBA dönüşümü, aralık birleştirme/bölme, ATA DSM yükü
-                  paketleme. Win32 bağımlılığı yok; ana makinede birim testine açık.
-- `src/win32/`  — birim/disk sorguları, pass-through, `device` arayüzünün gerçek uygulaması.
-- `src/cli/`    — `xptrim.exe` komut satırı aracı.
-- `src/service/`— servis (`xptrimsvc.exe`): kurulum/kaldırma, zamanlayıcı, loglama.
-- `tests/`      — birim testleri ve sahte cihaz.
+- `src/core/`    — saf mantık: LCN→LBA, aralık birleştirme/bölme, ATA DSM yükü, IDENTIFY
+                   ayrıştırma, `status.ini` modeli. Win32 bağımlılığı yok, birim testli.
+- `src/win32/`   — birim/disk sorguları, pass-through, yer tutucu dosya, yapılandırma, log,
+                   servis kontrolü; `device` arayüzünün gerçek uygulaması.
+- `src/cli/`, `src/service/`, `src/cpl/`, `src/tray/` — dört bileşen.
+- `tests/`       — birim testleri ve sahte cihaz. `tools/` — derleme yardımcıları.
+- Boş alan, yer tutucu bir dosyaya ayrılıp yalnızca onun extent'leri TRIM'lenerek işlenir;
+  dry-run da aynı yolu izler (dosyayı oluşturup siler, ham diske yazmaz) ve apply modunda
+  gönderilecek aralıkları birebir yazdırır.
+- Yapılandırma: `%ProgramFiles%\xp-trim\xptrim.ini` (yalnızca yöneticiler yazar).
+  Durum: servis `%ALLUSERSPROFILE%\Application Data\xp-trim\status.ini` yazar; applet ve
+  tepsi yönetici gerektiren sorguları kendileri yapmaz, bu dosyayı okur.
 - Servis LocalSystem olarak çalışır, `SERVICE_CONTROL_STOP`'a TRIM grupları arasında
-  birkaç saniye içinde yanıt verir ve işlemi yarıda bırakmak güvenlidir.
-- Çıkış kodları ve log biçimi belgelenir; dry-run çıktısı, apply modunda gönderilecek
-  aralıklarla birebir aynıdır.
+  birkaç saniye içinde yanıt verir; işlemi yarıda bırakmak güvenlidir. "Şimdi çalıştır"
+  özel kontrol kodu 128 ile gelir.
+- Apply modu yalnızca CLI'da `--apply` ile ya da appletin yönetici onaylı onay kutusuyla
+  (INI'de `apply=1`) açılır. Tepsi simgesi apply'ı açamaz.
+- Applet `control.exe` içinde çalıştığı için XP görsel stili manifest kaynak kimliği 2 ve
+  `ISOLATION_AWARE_ENABLED` ile etkinleştirilir.
+- Çıkış kodları ve log biçimi belgelenir.
 
 ## Çalışma düzeni
 
@@ -92,14 +136,15 @@ durum kullanıcıya sorulur.
   Başarısız olan bir adım varsa commit atılmaz; çıktı olduğu gibi raporlanır.
 - Kullanıcıya görünen her değişiklik `CHANGELOG.md`'nin "Unreleased" bölümüne yazılır
   (Keep a Changelog başlıkları: Added, Changed, Fixed, Removed, Security).
-- Ana makine (Windows 11) yalnızca derleme ve birim testi içindir. "XP'de çalışıyor"
-  iddiası ancak gerçek bir XP (tercihen SP0 ve SP3) sanal makinesinde denendikten sonra
-  yapılır; denenmemişse açıkça "XP'de doğrulanmadı" denir.
+- Ana makine (Windows 11 ARM64) yalnızca derleme, birim testi ve salt-okunur sorgular
+  içindir; üzerinde servis kurulmaz. "XP'de çalışıyor" iddiası ancak kullanıcının ayrı x86
+  makinesinde/VM'inde (tercihen SP0 ve SP3) denendikten sonra yapılır; denenmemişse PR'da
+  açıkça "XP'de doğrulanmadı" denir.
 - Yayın: sürüm etiketleri `vX.Y.Z`; release ekinde exe'ler ve SHA-256 özetleri bulunur.
 
-## Açık kararlar
+## Kararlar
 
-- Lisans (ör. MIT, GPL-3.0) — seçilmeden ilk public push yapılmaz.
-- Kod, yorum ve commit dili (açık kaynak için İngilizce önerilir) ve README dili.
-- Derleme sistemi (Makefile mi CMake mi) ve CI (GitHub Actions + MSYS2 MINGW32).
-- Servisin log hedefi (dosya mı, Event Log mu — Event Log mesaj kaynağı gerektirir).
+- Lisans: MIT.
+- Derleme: GNU Make + MSYS2 MINGW32; CI: GitHub Actions + `msys2/setup-msys2`.
+- Servis logu: exe yanındaki döndürülen metin dosyası (Event Log mesaj kaynağı gerektirdiği
+  için şimdilik yok).
