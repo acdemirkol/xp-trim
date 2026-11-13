@@ -27,6 +27,7 @@ int main(void)
     run("dsm", suite_dsm);
     run("identify", suite_identify);
     run("volcheck", suite_volcheck);
+    run("ata", suite_ata);
 
     printf("%d checks, %d failures\n", test_checks, test_failures);
     return test_failures == 0 ? 0 : 1;

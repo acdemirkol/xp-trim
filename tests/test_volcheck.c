@@ -1,3 +1,6 @@
+#include <string.h>
+
+#include "core/identify.h"
 #include "core/volcheck.h"
 #include "test.h"
 #include "win32/volume.h"
@@ -86,8 +89,50 @@ static void test_refusals(void)
 static void test_strings(void)
 {
     int v;
-    for (v = XT_VOL_OK; v <= XT_VOL_FS_EXCEEDS_PARTITION; v++)
-        CHECK(xt_volume_verdict_str((xt_volume_verdict)v)[0] != '\0');
+    for (v = XT_VOL_OK; v <= XT_VOL_VERDICT_LAST; v++) {
+        const char *s = xt_volume_verdict_str((xt_volume_verdict)v);
+        CHECK(s[0] != '\0' && strcmp(s, "unknown") != 0);
+    }
+}
+
+/* Drive matching good(): partition ends at LBA 63 + 8000. */
+static xt_identify good_drive(void)
+{
+    xt_identify id;
+    memset(&id, 0, sizeof id);
+    id.lba48 = 1;
+    id.user_sectors = 63 + 8000;
+    id.logical_sector_size = 512;
+    id.trim_supported = 1;
+    id.dsm_max_blocks = 8;
+    return id;
+}
+
+static void test_drive(void)
+{
+    xt_volume_facts f = good();
+    xt_geometry g;
+    xt_identify id;
+
+    CHECK_RESULT(xt_volume_evaluate(&f, &g), XT_VOL_OK);
+
+    id = good_drive();
+    CHECK_RESULT(xt_drive_evaluate(&id, &g), XT_VOL_OK);
+    id = good_drive(); id.user_sectors += 1000000;
+    CHECK_RESULT(xt_drive_evaluate(&id, &g), XT_VOL_OK);
+
+    id = good_drive(); id.trim_supported = 0;
+    CHECK_RESULT(xt_drive_evaluate(&id, &g), XT_VOL_NO_TRIM);
+    id = good_drive(); id.lba48 = 0;
+    CHECK_RESULT(xt_drive_evaluate(&id, &g), XT_VOL_NO_LBA48);
+    id = good_drive(); id.logical_sector_size = 4096;
+    CHECK_RESULT(xt_drive_evaluate(&id, &g), XT_VOL_DRIVE_SECTOR_MISMATCH);
+    id = good_drive(); id.user_sectors -= 1;
+    CHECK_RESULT(xt_drive_evaluate(&id, &g), XT_VOL_PARTITION_BEYOND_DRIVE);
+
+    CHECK_RESULT(xt_drive_evaluate(NULL, &g), XT_VOL_NO_IDENTIFY);
+    id = good_drive();
+    CHECK_RESULT(xt_drive_evaluate(&id, NULL), XT_VOL_BAD_GEOMETRY);
 }
 
 static void test_parse_drive_letter(void)
@@ -111,5 +156,6 @@ void suite_volcheck(void)
     test_supported();
     test_refusals();
     test_strings();
+    test_drive();
     test_parse_drive_letter();
 }

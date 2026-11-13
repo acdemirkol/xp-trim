@@ -65,6 +65,9 @@ msvcrt.dll!localeconv
 msvcrt.dll!malloc
 msvcrt.dll!memcmp
 msvcrt.dll!memcpy
+msvcrt.dll!memmove
+msvcrt.dll!memset
+msvcrt.dll!qsort
 msvcrt.dll!setvbuf
 msvcrt.dll!signal
 msvcrt.dll!strerror
