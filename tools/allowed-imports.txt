@@ -22,6 +22,13 @@ kernel32.dll!Sleep
 kernel32.dll!VirtualProtect
 kernel32.dll!VirtualQuery
 kernel32.dll!WideCharToMultiByte
+# volume queries (src/win32/volume.c); all Windows 2000 or older
+kernel32.dll!CloseHandle
+kernel32.dll!CreateFileW
+kernel32.dll!DeviceIoControl
+kernel32.dll!GetDriveTypeW
+kernel32.dll!GetVolumeInformationW
+kernel32.dll!SetLastError
 
 # --- msvcrt.dll: exported by the msvcrt.dll shipped with XP RTM ---
 # Mostly pulled in by the mingw-w64 CRT start-up code, not by our sources.

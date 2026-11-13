@@ -10,6 +10,10 @@ sürümleme [Semantic Versioning](https://semver.org/lang/tr/) kurallarına uyar
 ### Added
 - Build system (GNU Make, MSYS2 MINGW32) producing XP-compatible 32-bit binaries.
 - `xptrim --version` and `xptrim --help`.
+- `xptrim info <drive>`: read-only report of a volume's partition, sector and
+  cluster geometry, and whether it is supported. Refuses non-fixed drives,
+  non-NTFS file systems, spanned/striped volumes, GPT and dynamic disks,
+  fault-tolerant (RAID) partitions and inconsistent geometry.
 - `make check`: fails the build if a binary imports a function not available on
   Windows XP SP0 or its PE header does not target Windows 5.01.
 - Continuous integration on GitHub Actions.

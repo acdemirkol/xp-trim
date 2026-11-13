@@ -26,6 +26,7 @@ int main(void)
     run("ranges", suite_ranges);
     run("dsm", suite_dsm);
     run("identify", suite_identify);
+    run("volcheck", suite_volcheck);
 
     printf("%d checks, %d failures\n", test_checks, test_failures);
     return test_failures == 0 ? 0 : 1;

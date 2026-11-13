@@ -111,7 +111,7 @@ tools/check-imports.sh   # objdump -p → tools/allowed-imports.txt ile karşıl
 
 ## İş sırası (her biri ayrı branch + PR)
 
-Durum: 0 ✅ (#1) · 1 🔄 (`feat/core`) · 2–9 ⏳
+Durum: 0 ✅ (#1) · 1 ✅ (#2) · 2 🔄 (`feat/volume-info`) · 3–9 ⏳
 
 0. **Altyapı** — `chore/bootstrap`
    - MSYS2'yi winget ile kur (onay alınarak): `mingw-w64-i686-gcc`, `make`, `binutils`.
@@ -128,6 +128,10 @@ Durum: 0 ✅ (#1) · 1 🔄 (`feat/core`) · 2–9 ⏳
    - Tek bir dosyanın extent'lerinden gelen aralıklar çakışamaz; çakışma hata sayılır.
 2. **Birim/disk sorguları** — `feat/volume-info`: salt-okunur IOCTL'ler, reddetme kuralları,
    `xptrim info X:`.
+   - Karar mantığı `src/core/volcheck.c`'de (birim testli); `src/win32/volume.c` yalnızca
+     bilgi toplar. Ek çapraz kontroller: bölüm bilgisi ile disk extent'i aynı olmalı,
+     disk ve NTFS sektör boyutları eşit olmalı, NTFS bölümden büyük olmamalı, tip baytında
+     0x80 (NT FT set) varsa reddedilir.
 3. **IDENTIFY** — `feat/ata-identify`: iki pass-through yolu, `info`'ya TRIM desteği/model.
 4. **Dry-run** — `feat/dry-run`: yer tutucu dosya, retrieval pointers, aralık çıktısı,
    her yolda temizlik, Ctrl+C. Sahte cihaz testleri.

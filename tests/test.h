@@ -52,5 +52,6 @@ void suite_geometry(void);
 void suite_ranges(void);
 void suite_dsm(void);
 void suite_identify(void);
+void suite_volcheck(void);
 
 #endif /* XPTRIM_TEST_H */

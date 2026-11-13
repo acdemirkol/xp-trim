@@ -80,8 +80,11 @@ betik dosyasına yazılıp çalıştırılır. CI (`.github/workflows/ci.yml`) a
 - Dinamik disk, RAID ve NTFS dışı birimler reddedilir.
   - Birim tam olarak bir disk extent'ine eşlenmelidir (`IOCTL_VOLUME_GET_VOLUME_DISK_EXTENTS`);
     birden fazla extent (spanned/striped) reddedilir.
-  - Bölüm tipi 0x42 (LDM / dinamik disk), GPT diskler ve dosya sistemi adı tam olarak
-    `NTFS` olmayan birimler reddedilir.
+  - Bölüm tipi 0x42 (LDM / dinamik disk), 0x80 bitli tipler (NT FT set / RAID), GPT
+    diskler ve dosya sistemi adı tam olarak `NTFS` olmayan birimler reddedilir.
+  - Bölüm bilgisi ile disk extent'i (ofset ve uzunluk) birebir aynı, disk ve NTFS sektör
+    boyutları eşit olmalıdır; tutarsızlık reddetme sebebidir. Bu kararlar
+    `src/core/volcheck.c`'de, birim testleriyle korunur.
 - Cihaz gerçekten TRIM destekliyorsa TRIM gönderilir: ATA IDENTIFY DEVICE word 169 bit 0
   kontrol edilir; tek komuttaki aralık sayısı word 105'e göre sınırlanır. Bilgi okunamıyorsa
   (USB köprüsü, bilinmeyen sürücü vb.) işlem yapılmaz.
