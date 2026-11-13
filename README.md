@@ -27,6 +27,22 @@ and slowly lose write performance. xp-trim fills that gap:
 - Dynamic disks, RAID/spanned volumes, GPT disks and non-NTFS volumes are refused.
 - TRIM is only sent when the drive reports TRIM support (ATA IDENTIFY word 169).
 
+## Usage
+
+Run from an administrator command prompt.
+
+```
+xptrim info C:      Show whether volume C: can be trimmed (read-only)
+xptrim --version
+```
+
+| Exit code | Meaning |
+|---|---|
+| 0 | Success (`info`: the volume is supported) |
+| 2 | Usage error |
+| 3 | Volume not supported; the reason is printed |
+| 4 | A system query failed; the step and Windows error code are printed |
+
 ## Building
 
 Requires [MSYS2](https://www.msys2.org/) with the MINGW32 environment:

@@ -27,6 +27,22 @@ olduğunu hiç öğrenemez ve yazma performansları zamanla düşer. xp-trim bu 
 - Dinamik diskler, RAID/spanned birimler, GPT diskler ve NTFS olmayan birimler reddedilir.
 - TRIM yalnızca sürücü TRIM desteğini bildiriyorsa (ATA IDENTIFY word 169) gönderilir.
 
+## Kullanım
+
+Yönetici olarak açılmış bir komut isteminden çalıştırın.
+
+```
+xptrim info C:      C: biriminin TRIM'lenip TRIM'lenemeyeceğini gösterir (salt-okunur)
+xptrim --version
+```
+
+| Çıkış kodu | Anlamı |
+|---|---|
+| 0 | Başarılı (`info`: birim destekleniyor) |
+| 2 | Kullanım hatası |
+| 3 | Birim desteklenmiyor; nedeni yazdırılır |
+| 4 | Bir sistem sorgusu başarısız oldu; adım ve Windows hata kodu yazdırılır |
+
 ## Derleme
 
 MINGW32 ortamıyla birlikte [MSYS2](https://www.msys2.org/) gerekir:
