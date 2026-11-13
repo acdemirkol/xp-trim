@@ -57,8 +57,16 @@ typedef enum {
     XT_VOL_EXTENT_MISMATCH,
     XT_VOL_SECTOR_MISMATCH,
     XT_VOL_BAD_GEOMETRY,
-    XT_VOL_FS_EXCEEDS_PARTITION
+    XT_VOL_FS_EXCEEDS_PARTITION,
+    /* drive-level, from xt_drive_evaluate() or when IDENTIFY is unavailable */
+    XT_VOL_NO_IDENTIFY,
+    XT_VOL_NO_TRIM,
+    XT_VOL_NO_LBA48,
+    XT_VOL_DRIVE_SECTOR_MISMATCH,
+    XT_VOL_PARTITION_BEYOND_DRIVE
 } xt_volume_verdict;
+
+#define XT_VOL_VERDICT_LAST XT_VOL_PARTITION_BEYOND_DRIVE
 
 /*
  * Applies the refusal rules in a fixed order and returns the first that
@@ -66,6 +74,15 @@ typedef enum {
  * built only from values reported by the system.
  */
 xt_volume_verdict xt_volume_evaluate(const xt_volume_facts *f, xt_geometry *geom);
+
+/*
+ * Drive-level rules, applied after xt_volume_evaluate() returned XT_VOL_OK
+ * for geometry `g`: the drive must report TRIM and 48-bit addressing, its
+ * logical sector size must equal the disk's, and the partition must end
+ * within the drive's user-addressable sectors.
+ */
+struct xt_identify_s;
+xt_volume_verdict xt_drive_evaluate(const struct xt_identify_s *id, const xt_geometry *g);
 
 /* Short English reason; never NULL. */
 const char *xt_volume_verdict_str(xt_volume_verdict v);

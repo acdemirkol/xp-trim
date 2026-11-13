@@ -18,6 +18,9 @@ typedef struct {
     const char *step;     /* name of the failed step, NULL on success */
 } xt_query_status;
 
+/* Writes L"\\\\.\\PhysicalDrive<n>" into out (empty string if it does not fit). */
+void xt_physical_drive_path(DWORD n, wchar_t *out, size_t out_len);
+
 /* Accepts "C", "C:" or "C:\" (any case); returns the upper-case letter or 0. */
 wchar_t xt_parse_drive_letter(const wchar_t *arg);
 

@@ -53,5 +53,6 @@ void suite_ranges(void);
 void suite_dsm(void);
 void suite_identify(void);
 void suite_volcheck(void);
+void suite_ata(void);
 
 #endif /* XPTRIM_TEST_H */

@@ -12,7 +12,7 @@
 
 #define XT_IDENTIFY_BYTES 512u
 
-typedef struct {
+typedef struct xt_identify_s {
     char model[41];    /* words 27..46, trimmed, NUL-terminated */
     char serial[21];   /* words 10..19 */
     char firmware[9];  /* words 23..26 */
@@ -31,7 +31,9 @@ typedef struct {
 /*
  * Parses an IDENTIFY DEVICE buffer.
  *
- * Fails with XT_E_BAD_DATA if word 0 bit 15 says this is not an ATA device,
+ * Fails with XT_E_BAD_DATA if the buffer is all 0x00 or all 0xFF (a driver
+ * that reported success without returning data), if word 0 bit 15 says this
+ * is not an ATA device,
  * or if the integrity word (255) carries the 0xA5 signature and the checksum
  * does not add up. *out is only written on XT_OK.
  */

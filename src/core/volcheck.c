@@ -1,5 +1,6 @@
 #include <stddef.h>
 
+#include "core/identify.h"
 #include "core/volcheck.h"
 
 xt_volume_verdict xt_volume_evaluate(const xt_volume_facts *f, xt_geometry *geom)
@@ -55,6 +56,29 @@ xt_volume_verdict xt_volume_evaluate(const xt_volume_facts *f, xt_geometry *geom
     return XT_VOL_OK;
 }
 
+xt_volume_verdict xt_drive_evaluate(const xt_identify *id, const xt_geometry *g)
+{
+    uint64_t end_lba;
+
+    if (id == NULL)
+        return XT_VOL_NO_IDENTIFY;
+    if (g == NULL || xt_geometry_validate(g) != XT_OK)
+        return XT_VOL_BAD_GEOMETRY;
+
+    if (!id->trim_supported)
+        return XT_VOL_NO_TRIM;
+    if (!id->lba48)
+        return XT_VOL_NO_LBA48;
+    if (id->logical_sector_size != g->bytes_per_sector)
+        return XT_VOL_DRIVE_SECTOR_MISMATCH;
+
+    /* No overflow: xt_geometry_validate() checked offset + length. */
+    end_lba = (g->partition_offset_bytes + g->partition_length_bytes) / g->bytes_per_sector;
+    if (end_lba > id->user_sectors)
+        return XT_VOL_PARTITION_BEYOND_DRIVE;
+    return XT_VOL_OK;
+}
+
 const char *xt_volume_verdict_str(xt_volume_verdict v)
 {
     switch (v) {
@@ -72,6 +96,11 @@ const char *xt_volume_verdict_str(xt_volume_verdict v)
     case XT_VOL_SECTOR_MISMATCH:      return "disk and file system sector sizes disagree";
     case XT_VOL_BAD_GEOMETRY:         return "inconsistent geometry";
     case XT_VOL_FS_EXCEEDS_PARTITION: return "file system larger than its partition";
+    case XT_VOL_NO_IDENTIFY:          return "drive identity could not be read (USB bridge or unsupported driver?)";
+    case XT_VOL_NO_TRIM:              return "drive does not report TRIM support";
+    case XT_VOL_NO_LBA48:             return "drive does not support 48-bit addressing";
+    case XT_VOL_DRIVE_SECTOR_MISMATCH: return "drive and disk sector sizes disagree";
+    case XT_VOL_PARTITION_BEYOND_DRIVE: return "partition ends beyond the drive's capacity";
     }
     return "unknown";
 }

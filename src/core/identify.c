@@ -46,6 +46,17 @@ xt_result xt_identify_parse(const uint8_t *buf, xt_identify *out)
     if (buf == NULL || out == NULL)
         return XT_E_INVALID_ARG;
 
+    {
+        /* All-zero or all-0xFF: a driver that "succeeded" without data. */
+        unsigned i, zeros = 0, ones = 0;
+        for (i = 0; i < XT_IDENTIFY_BYTES; i++) {
+            zeros += buf[i] == 0x00;
+            ones += buf[i] == 0xFF;
+        }
+        if (zeros == XT_IDENTIFY_BYTES || ones == XT_IDENTIFY_BYTES)
+            return XT_E_BAD_DATA;
+    }
+
     if (word(buf, 0) & 0x8000u)
         return XT_E_BAD_DATA; /* ATAPI or not an ATA device */
 

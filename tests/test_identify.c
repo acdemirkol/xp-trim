@@ -185,8 +185,20 @@ static void test_strings(void)
     CHECK(strlen(id.model) == 40);
 }
 
+static void test_empty_buffers(void)
+{
+    uint8_t buf[XT_IDENTIFY_BYTES];
+    xt_identify id;
+
+    memset(buf, 0x00, sizeof buf);
+    CHECK_RESULT(xt_identify_parse(buf, &id), XT_E_BAD_DATA);
+    memset(buf, 0xFF, sizeof buf);
+    CHECK_RESULT(xt_identify_parse(buf, &id), XT_E_BAD_DATA);
+}
+
 void suite_identify(void)
 {
+    test_empty_buffers();
     test_ssd();
     test_hdd_no_trim();
     test_no_lba48();

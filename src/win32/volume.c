@@ -33,7 +33,7 @@ static int fail(xt_query_status *st, const char *step)
 }
 
 /* Builds L"\\\\.\\PhysicalDrive<n>" without pulling in a printf variant. */
-static void physical_drive_path(DWORD n, wchar_t *out, size_t out_len)
+void xt_physical_drive_path(DWORD n, wchar_t *out, size_t out_len)
 {
     static const wchar_t prefix[] = L"\\\\.\\PhysicalDrive";
     wchar_t digits[11];
@@ -114,7 +114,7 @@ static int query_disk(HANDLE vol, xt_volume_facts *f, xt_query_status *st)
         return 1;
 
     /* Physical disk opened with no access rights: query only. */
-    physical_drive_path(f->disk_number, path, sizeof path / sizeof path[0]);
+    xt_physical_drive_path(f->disk_number, path, sizeof path / sizeof path[0]);
     disk = CreateFileW(path, 0, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
                        OPEN_EXISTING, 0, NULL);
     if (disk == INVALID_HANDLE_VALUE)

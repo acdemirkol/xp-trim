@@ -96,9 +96,15 @@ betik dosyasına yazılıp çalıştırılır. CI (`.github/workflows/ci.yml`) a
   sistemi o kümeleri tahsis edebilir). Ya birim `FSCTL_LOCK_VOLUME` ile kilitlenir ya da boş
   alan önce araca ait bir yer tutucu dosyaya tahsis edilir ve yalnızca o dosyanın extent'leri
   (`FSCTL_GET_RETRIEVAL_POINTERS`) TRIM'lenir.
-- ATA pass-through yolu (`IOCTL_ATA_PASS_THROUGH` ya da SAT CDB ile
-  `IOCTL_SCSI_PASS_THROUGH_DIRECT`) SP sürümüne göre varsayılmaz; çalışma anında denenir,
-  hiçbiri çalışmıyorsa işlem yapılmadan çıkılır.
+- ATA pass-through yolu (`IOCTL_ATA_PASS_THROUGH` ya da SAT ATA-16 CDB ile
+  `IOCTL_SCSI_PASS_THROUGH`) SP sürümüne göre varsayılmaz; çalışma anında denenir,
+  hiçbiri çalışmıyorsa işlem yapılmadan çıkılır. `SMART_RCV_DRIVE_DATA` yalnızca IDENTIFY
+  için yedek yoldur, TRIM taşıyamaz. Pass-through ile gelen IDENTIFY verisi
+  `xt_identify_parse` doğrulamasından geçmeden kabul edilmez.
+- Pass-through IOCTL'leri, gönderilen komut salt-okunur IDENTIFY olsa bile fiziksel diskin
+  okuma/yazma tutamacını ister. Bu yüzden `xptrim info` desteklenen bir birimde diski
+  `GENERIC_READ | GENERIC_WRITE` açar; Claude bunu ana makinede yönetici olarak çalıştırmaz,
+  denemeyi kullanıcı yapar.
 - Testlerde veya örneklerde gerçek bir fiziksel diske asla yazılmaz.
   - Cihaza komut gönderen kod tek bir soyutlama katmanının (`device` arayüzü) arkasındadır;
     testler sahte (mock) cihaz kullanır ve gönderilen aralıkları kaydedip doğrular.

@@ -111,7 +111,7 @@ tools/check-imports.sh   # objdump -p → tools/allowed-imports.txt ile karşıl
 
 ## İş sırası (her biri ayrı branch + PR)
 
-Durum: 0 ✅ (#1) · 1 ✅ (#2) · 2 🔄 (`feat/volume-info`) · 3–9 ⏳
+Durum: 0 ✅ (#1) · 1 ✅ (#2) · 2 ✅ (#3, XP'de doğrulandı) · 3 🔄 (`feat/ata-identify`) · 4–9 ⏳
 
 0. **Altyapı** — `chore/bootstrap`
    - MSYS2'yi winget ile kur (onay alınarak): `mingw-w64-i686-gcc`, `make`, `binutils`.
@@ -133,6 +133,12 @@ Durum: 0 ✅ (#1) · 1 ✅ (#2) · 2 🔄 (`feat/volume-info`) · 3–9 ⏳
      disk ve NTFS sektör boyutları eşit olmalı, NTFS bölümden büyük olmamalı, tip baytında
      0x80 (NT FT set) varsa reddedilir.
 3. **IDENTIFY** — `feat/ata-identify`: iki pass-through yolu, `info`'ya TRIM desteği/model.
+   - Üçüncü yol olarak `SMART_RCV_DRIVE_DATA` eklendi (XP'nin IDE sürücüsünde de çalışır,
+     ama yalnızca IDENTIFY taşır). SCSI yolu tamponlu `IOCTL_SCSI_PASS_THROUGH` kullanır
+     (`_DIRECT`'in hizalama şartları yok). `info` her yolun sonucunu yazdırır; 5. adımda
+     TRIM'in hangi yoldan gideceği XP PC'deki bu çıktıya göre kesinleşir.
+   - Sürücü kuralları (`xt_drive_evaluate`): TRIM ve 48-bit LBA zorunlu, sürücü sektör
+     boyutu = disk sektör boyutu, bölüm sürücü kapasitesi içinde.
 4. **Dry-run** — `feat/dry-run`: yer tutucu dosya, retrieval pointers, aralık çıktısı,
    her yolda temizlik, Ctrl+C. Sahte cihaz testleri.
 5. **Apply** — `feat/apply`: DSM gönderimi, gruplama, `--apply` kapısı, ilerleme, hatada
