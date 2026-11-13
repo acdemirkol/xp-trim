@@ -45,8 +45,11 @@ durum kullanıcıya sorulur.
 
 ## Komutlar
 
-Geliştirme makinesi Windows 11 **ARM64**; i686 exe'ler x86 emülasyonuyla çalışır, yani
-testler ana makinede koşar. Toolchain: MSYS2 (`C:\msys64`) MINGW32 ortamı, GCC 16 i686.
+Geliştirme makinesi, kullanıcının Mac'inde Parallels içinde çalışan Windows 11 **ARM64**;
+i686 exe'ler x86 emülasyonuyla çalışır, yani testler ana makinede koşar. Diskleri
+Parallels'in sanal diskleridir (GPT): buradaki sonuçlar gerçek SSD davranışı hakkında bilgi
+vermez. Claude'un kabuğu yönetici değildir; yönetici gerektiren salt-okunur denemeleri
+kullanıcı kendisi çalıştırır. Toolchain: MSYS2 (`C:\msys64`) MINGW32 ortamı, GCC 16 i686.
 
 ```
 tools\msys-run.cmd make         # build/xptrim.exe
